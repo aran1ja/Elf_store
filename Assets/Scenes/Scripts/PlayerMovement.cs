@@ -20,7 +20,8 @@ public class Player : MonoBehaviour
 
 
     [Header("Ground Check")]
-    public float playerHeight;
+    public Transform groundCheck;
+    public float groundDistance = 0.2f;
     public LayerMask whatIsGround;
     bool grounded;
 
@@ -41,7 +42,16 @@ public class Player : MonoBehaviour
 
     private void Update() {
         // Ground check
-        grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, whatIsGround);
+        grounded = Physics.Raycast(groundCheck.position, Vector3.down, groundDistance, whatIsGround);
+        Debug.DrawRay(groundCheck.position, Vector3.down * groundDistance, Color.red);
+
+        if (Physics.Raycast(groundCheck.position, Vector3.down, out RaycastHit hit, groundDistance, whatIsGround)) {
+            Debug.Log("Trafiono w: " + hit.collider.name);
+            grounded = true;
+        } else {
+            grounded = false;
+        }
+
 
         MyInput();
         SpeedControl();

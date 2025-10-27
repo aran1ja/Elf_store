@@ -682,6 +682,7 @@ GameObject:
   - component: {fileID: 148421022}
   - component: {fileID: 148421024}
   - component: {fileID: 148421023}
+  - component: {fileID: 148421025}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -698,7 +699,7 @@ Transform:
   m_GameObject: {fileID: 148421021}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.24, y: -1.2999477, z: 12.81}
+  m_LocalPosition: {x: 1.32, y: -1.411, z: 12.81}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -724,7 +725,8 @@ MonoBehaviour:
   jumpCooldown: 0.25
   airMultiplier: 0.4
   jumpKey: 32
-  playerHeight: 2
+  groundCheck: {fileID: 497329957}
+  groundDistance: 0.1
   whatIsGround:
     serializedVersion: 2
     m_Bits: 1024
@@ -756,6 +758,21 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 80
   m_CollisionDetection: 1
+--- !u!114 &148421025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 148421021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d802a627da1fd749a0f2ed66edab600, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slideForce: 10
+  maxSlideSpeed: 12
+  isSliding: 0
 --- !u!1001 &171296364
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2692,6 +2709,37 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dd5c315fd54ca5f49be81cf6e996b279, type: 3}
+--- !u!1 &497329956
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 497329957}
+  m_Layer: 0
+  m_Name: GroundCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &497329957
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 497329956}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.95, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 543450653491383813}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &499241922
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13417,6 +13465,7 @@ Transform:
   - {fileID: 7122548352281496873}
   - {fileID: 760598851309393622}
   - {fileID: 763610056}
+  - {fileID: 497329957}
   m_Father: {fileID: 148421022}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!4 &582348831222948173
@@ -13871,10 +13920,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.68
   m_Height: 3
   m_Direction: 1
-  m_Center: {x: 0, y: 0.65, z: 0}
+  m_Center: {x: 0, y: 0.67, z: 0.08}
 --- !u!23 &920006908902428176
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -20869,6 +20918,7 @@ GameObject:
   - component: {fileID: 1295034215645140605}
   - component: {fileID: 293693896152888400}
   - component: {fileID: 4821955183562403265}
+  - component: {fileID: 5874123204021080001}
   m_Layer: 0
   m_Name: Cube.001
   m_TagString: Untagged
@@ -20876,6 +20926,28 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!64 &5874123204021080001
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5874123204021080000}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4493585093827132993, guid: 89b95f6bbb03ce54b9b62aed883e78ba, type: 3}
 --- !u!1 &5883717892603345061
 GameObject:
   m_ObjectHideFlags: 0
