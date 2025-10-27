@@ -42,24 +42,45 @@ public class PickupObject : MonoBehaviour {
     void Pickup() {
         if (currentTarget == null) return;
         if (holdPoint.childCount > 0) return; // one toy
+        if (currentTarget.CompareTag("Pickup")) {
+            GameObject clone = Instantiate(currentTarget, holdPoint.position, Quaternion.identity);
+            clone.transform.SetParent(holdPoint);
+            clone.transform.localPosition = Vector3.zero;
+            clone.transform.localRotation = Quaternion.identity;
 
-        GameObject clone = Instantiate(currentTarget, holdPoint.position, Quaternion.identity);
-        clone.transform.SetParent(holdPoint);
-        clone.transform.localPosition = Vector3.zero;
-        clone.transform.localRotation = Quaternion.identity;
+            Rigidbody rb = clone.GetComponent<Rigidbody>();
+            if (rb == null)
+                rb = clone.AddComponent<Rigidbody>();
+            rb.isKinematic = true;
+            rb.useGravity = false;
 
-        Canvas c = clone.GetComponentInChildren<Canvas>();
-        if (c != null) c.gameObject.SetActive(false);
+            Collider col = clone.GetComponent<Collider>();
+            if (col != null)
+                col.isTrigger = true;
 
-        Rigidbody rb = clone.GetComponent<Rigidbody>();
-        if (rb == null)
-            rb = clone.AddComponent<Rigidbody>();
-        rb.isKinematic = true;
-        rb.useGravity = false;
+            Canvas c = clone.GetComponentInChildren<Canvas>();
+            if (c != null) c.gameObject.SetActive(false);
 
-        Collider col = clone.GetComponent<Collider>();
-        if (col != null)
-            col.isTrigger = true;
+            clone.tag = "Clone";
+        } else {
+            // If it is a copy, we can't make a new copy from it
+            currentTarget.transform.SetParent(holdPoint);
+            currentTarget.transform.localPosition = Vector3.zero;
+            currentTarget.transform.localRotation = Quaternion.identity;
+
+            Rigidbody rb = currentTarget.GetComponent<Rigidbody>();
+            if (rb != null) {
+                rb.isKinematic = true;
+                rb.useGravity = false;
+            }
+
+            Collider col = currentTarget.GetComponent<Collider>();
+            if (col != null)
+                col.isTrigger = true;
+
+            Canvas c = currentTarget.GetComponentInChildren<Canvas>();
+            if (c != null) c.gameObject.SetActive(false);
+        }
     }
 
     void Throw() {
