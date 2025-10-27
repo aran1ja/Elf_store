@@ -25,7 +25,7 @@ public class PickupObject : MonoBehaviour {
 
             uiText = currentTarget.GetComponentInChildren<Canvas>()?.gameObject;
             if (uiText != null)
-                uiText.SetActive(true); //„[T] Take”
+                uiText.SetActive(true); //[T] Take
         }
     }
 
@@ -41,6 +41,7 @@ public class PickupObject : MonoBehaviour {
 
     void Pickup() {
         if (currentTarget == null) return;
+        if (holdPoint.childCount > 0) return; // one toy
 
         GameObject clone = Instantiate(currentTarget, holdPoint.position, Quaternion.identity);
         clone.transform.SetParent(holdPoint);
@@ -54,15 +55,12 @@ public class PickupObject : MonoBehaviour {
         if (rb == null)
             rb = clone.AddComponent<Rigidbody>();
         rb.isKinematic = true;
-        rb.useGravity = true;
+        rb.useGravity = false;
 
-        MeshRenderer mr = clone.GetComponent<MeshRenderer>();
         Collider col = clone.GetComponent<Collider>();
-
-        Debug.Log("Clone MeshRenderer: " + (mr != null));
-        Debug.Log("Clone Collider: " + (col != null));
+        if (col != null)
+            col.isTrigger = true;
     }
-
 
     void Throw() {
         if (holdPoint.childCount == 0) return;
@@ -74,7 +72,15 @@ public class PickupObject : MonoBehaviour {
         if (rb != null) {
             rb.isKinematic = false;
             rb.useGravity = true;
-            rb.AddForce(Camera.main.transform.forward * throwForce, ForceMode.Impulse);
+            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+
+            Collider col = item.GetComponent<Collider>();
+            if (col != null)
+                col.isTrigger = false;
+
+            if (Camera.main != null)
+                rb.AddForce(Camera.main.transform.forward * throwForce, ForceMode.Impulse);
         }
     }
+
 }
