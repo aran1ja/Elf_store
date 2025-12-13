@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Slide
   - Pickup
+  - Clone
+  - Table3big
+  - Package
   layers:
   - Default
   - TransparentFX
