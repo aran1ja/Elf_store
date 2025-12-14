@@ -24,9 +24,13 @@ public class ToyPackingStation : MonoBehaviour {
 
     private GameObject currentToy;
     private GameObject heldPackage;
-    private bool isPlaced;
+    private GameObject tablePackage;
     private float packProgress;
     private float fullWidth;
+
+    private enum TableState { Empty, ToyPlaced, PackageOnTable }
+    private TableState tableState = TableState.Empty;
+
 
     void Start() {
         fullWidth = progressBarFill.sizeDelta.x;
@@ -37,92 +41,69 @@ public class ToyPackingStation : MonoBehaviour {
 
     void Update() {
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
-        if (Physics.Raycast(ray, out RaycastHit hit, 5f)) {
-            GameObject target = hit.collider.gameObject;
-            float distanceToTable = Vector3.Distance(player.position, packPositionBig.position);
+        Physics.Raycast(ray, out RaycastHit hit, 5f);
+        GameObject target = hit.collider != null ? hit.collider.gameObject : null;
+        float distanceToTable = Vector3.Distance(player.position, packPositionBig.position);
 
-            // If player is looking at the placed toy, show packing texr
-            if (target == currentToy && isPlaced) {
-                if (!Input.GetKey(KeyCode.P)) {
-                    actionText.text = "[P] Packing";
-                } else {
-                    actionText.text = "";
-                }
-            }
+        // Lay toy
+        if (currentToy != null && tableState == TableState.Empty && heldPackage == null && distanceToTable <= layDistance) {
 
             // If toy is not placed and player is near table, show lay toy text
-            else if (!isPlaced && distanceToTable <= layDistance) {
-                actionText.text = "[L] Lay toy";
-            } else {
-                actionText.text = "";
-            }
+            actionText.text = "[L] Lay toy";
+            if (Input.GetKeyDown(KeyCode.L))
+                PlaceToy();
 
-        } else {
+        } else if (tableState == TableState.Empty && distanceToTable <= layDistance) {
+            actionText.text = "";
+        }
+
+          // Packing
+          else if (tableState == TableState.ToyPlaced && target == currentToy && distanceToTable <= layDistance) {
+
+            // If player is looking at the placed toy, show packing texr
             if (!Input.GetKey(KeyCode.P))
+                actionText.text = "[P] Packing";
+            else
                 actionText.text = "";
+        } else if (!Input.GetKey(KeyCode.P)) {
+            actionText.text = "";
         }
 
         // Packing procesas
-        if (isPlaced && Input.GetKey(KeyCode.P)) {
+        if (tableState == TableState.ToyPlaced && Input.GetKey(KeyCode.P)) {
             progressBarRoot.SetActive(true);
             packProgress += Time.deltaTime;
             float percent = Mathf.Clamp01(packProgress / packTime);
             progressBarFill.sizeDelta = new Vector2(fullWidth * percent, progressBarFill.sizeDelta.y);
 
-            if (packProgress >= packTime) {
-                PackToy(); // Package in place of toy
-            }
+            if (packProgress >= packTime)
+                PackToy();
         }
 
-        if (Input.GetKeyUp(KeyCode.P)) {
+        if (Input.GetKeyUp(KeyCode.P))
             ResetProgress();
-        }
 
         // Package position and throwing
-        if (heldPackage != null)
-        {
-            Rigidbody rb = heldPackage.GetComponent<Rigidbody>();
-            if (rb != null) {
-                Vector3 targetPos = holdPoint.position + holdPoint.TransformDirection(holdOffset);
-                Quaternion targetRot = Quaternion.Euler(-90f, 0f, 0f);
-                rb.isKinematic = true;
-                rb.MovePosition(targetPos);
-                rb.MoveRotation(targetRot);
-            }
+        if (heldPackage != null) {
+            MoveHeldPackage();
 
-            if (Input.GetKeyDown(KeyCode.Y)) {
+            if (Input.GetKeyDown(KeyCode.Y))
                 ThrowHeldObject(heldPackage);
-            }
         }
+
+        if (tableState == TableState.PackageOnTable && tablePackage != null && distanceToTable <= layDistance && Input.GetKeyDown(KeyCode.T))
+            TakePackageFromTable();
     }
 
     private void OnTriggerStay(Collider other) {
-        if (!other.CompareTag("Clone")) return;
+        if (!other.CompareTag("Clone")) 
+            return;
         currentToy = other.gameObject;
-
-        // Allows laying the toy if player is not holding a package
-        if (!isPlaced && heldPackage == null) {
-            float distanceToPlayer = Vector3.Distance(player.position, packPositionBig.position);
-
-            if (distanceToPlayer <= layDistance) {
-                actionText.text = "[L] Lay toy";
-
-                if (Input.GetKeyDown(KeyCode.L)) {
-                    PlaceToy();
-                }
-            }
-        }
     }
 
     private void OnTriggerExit(Collider other) {
-        if (other.gameObject == currentToy) {
-            ResetProgress();
+        if (other.gameObject == currentToy)
             currentToy = null;
-            isPlaced = false;
-
-            if (actionText != null)
-                actionText.text = "";
-        }
     }
 
     void ResetProgress() {
@@ -143,31 +124,38 @@ public class ToyPackingStation : MonoBehaviour {
             rb.useGravity = false;
         }
 
-        isPlaced = true;
+        tableState = TableState.ToyPlaced;
     }
 
     void PackToy() {
         if (packagePrefab != null) {
-            GameObject package = Instantiate(packagePrefab, packPositionBig.position, Quaternion.Euler(-90f, 0f, 0f));
+            tablePackage = Instantiate(packagePrefab, packPositionBig.position, Quaternion.Euler(-90f, 0f, 0f));
+            Rigidbody rb = tablePackage.GetComponent<Rigidbody>();
+            if (rb == null) rb = tablePackage.AddComponent<Rigidbody>();
 
-            Rigidbody rb = package.GetComponent<Rigidbody>();
-            if (rb == null) rb = package.AddComponent<Rigidbody>();
-
-            rb.isKinematic = false;
-            rb.useGravity = true;
+            rb.isKinematic = true;
+            rb.useGravity = false;
             rb.interpolation = RigidbodyInterpolation.Interpolate;
             rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 
-            package.tag = "Package";
+            tableState = TableState.PackageOnTable;
         }
 
         Destroy(currentToy);
-        ResetProgress();
         currentToy = null;
-        isPlaced = false;
+        ResetProgress();
+    }
 
-        if (actionText != null)
-            actionText.text = "";
+    void MoveHeldPackage() {
+        if (heldPackage == null) return;
+        Rigidbody rb = heldPackage.GetComponent<Rigidbody>();
+        if (rb != null) {
+            Vector3 targetPos = holdPoint.position + holdPoint.TransformDirection(holdOffset);
+            Quaternion targetRot = Quaternion.Euler(-90f, 0f, 0f);
+            rb.isKinematic = true;
+            rb.MovePosition(targetPos);
+            rb.MoveRotation(targetRot);
+        }
     }
 
     void ThrowHeldObject(GameObject held) {
@@ -183,8 +171,28 @@ public class ToyPackingStation : MonoBehaviour {
         }
 
         heldPackage = null;
-
         if (actionText != null)
             actionText.text = "";
     }
+
+    void TakePackageFromTable() {
+        if (tablePackage == null) return;
+
+        heldPackage = tablePackage;
+        tablePackage = null;
+
+        heldPackage.transform.position = holdPoint.position + holdPoint.TransformDirection(holdOffset);
+        heldPackage.transform.rotation = Quaternion.Euler(-90f, 0f, 0f);
+
+        Rigidbody rb = heldPackage.GetComponent<Rigidbody>();
+        if (rb != null) {
+            rb.isKinematic = true;
+            rb.useGravity = false;
+        }
+
+        tableState = TableState.Empty;
+        if (actionText != null)
+            actionText.text = "[Y] Throw";
+    }
+
 }
