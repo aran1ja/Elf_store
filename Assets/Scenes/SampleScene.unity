@@ -6162,7 +6162,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &974358820
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10795,7 +10795,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4e1b5607ef29644aa379e9478345c4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startTime: 10
+  startTime: 120
   timerText: {fileID: 512436879}
 --- !u!4 &1633624265
 Transform:
@@ -34976,7 +34976,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   packagePoint: {fileID: 1072464669}
-  moveDirection: {x: 0, y: 0, z: 1}
+  moveDirection: {x: 1, y: 0, z: 0}
   beltSpeed: 2
   playerDistance: 1.5
   player: {fileID: 543450653491383813}

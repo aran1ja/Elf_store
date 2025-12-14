@@ -14,6 +14,7 @@ public class ConveyorBeltController : MonoBehaviour {
     public TMP_Text actionText;
 
     public PickupObjects pickupObjects;
+
     private GameObject packageOnBelt;
     private bool packagePlaced = false;
     private bool isSending = false;
@@ -21,11 +22,14 @@ public class ConveyorBeltController : MonoBehaviour {
     void Update() {
         float dist = Vector3.Distance(player.position, packagePoint.position);
 
+        // [L] ma paczke i obok konwejeru
         if (!packagePlaced && HasPackageInHand() && dist <= playerDistance) {
             actionText.text = "[L] Lay package";
             if (Input.GetKeyDown(KeyCode.L))
                 LayPackage();
-        } else if (packagePlaced && !isSending && dist <= playerDistance) {
+        }
+        // [Z] jesli paczka stoi nie wyslana
+        else if (packagePlaced && !isSending && dist <= playerDistance) {
             actionText.text = "[Z] Send package";
             if (Input.GetKeyDown(KeyCode.Z))
                 SendPackage();
@@ -35,7 +39,7 @@ public class ConveyorBeltController : MonoBehaviour {
 
         if (isSending && packageOnBelt != null) {
             Rigidbody rb = packageOnBelt.GetComponent<Rigidbody>();
-            if (rb != null && !rb.isKinematic)
+            if (rb != null)
                 rb.velocity = moveDirection.normalized * beltSpeed;
         }
     }
@@ -48,20 +52,17 @@ public class ConveyorBeltController : MonoBehaviour {
         if (!HasPackageInHand()) return;
 
         packageOnBelt = playerHoldPoint.GetChild(0).gameObject;
-
-        if (pickupObjects != null)
-            pickupObjects.ForceDrop();
-
         packageOnBelt.transform.SetParent(null);
         packageOnBelt.transform.position = packagePoint.position;
-        packageOnBelt.transform.rotation = packagePoint.rotation;
+        packageOnBelt.transform.rotation = Quaternion.Euler(-90f, 0f, 0f);
 
         Rigidbody rb = packageOnBelt.GetComponent<Rigidbody>();
-        if (rb == null)
-            rb = packageOnBelt.AddComponent<Rigidbody>();
-
-        rb.isKinematic = false;
+        if (rb == null) rb = packageOnBelt.AddComponent<Rigidbody>();
+        rb.isKinematic = true;
         rb.useGravity = false;
+
+        if (pickupObjects != null)
+            pickupObjects.heldObject = null;
 
         packagePlaced = true;
     }
