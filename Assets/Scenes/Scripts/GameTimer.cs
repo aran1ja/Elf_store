@@ -9,7 +9,7 @@ public class GameTimer : MonoBehaviour {
     [Header("UI")]
     public TMP_Text timerText;
 
-    private bool timerRunning = true;
+    private bool timerRunning = false;
 
     void Start() {
         timeNow = startTime;
@@ -39,5 +39,18 @@ public class GameTimer : MonoBehaviour {
 
     void TimerFinished() {
         Debug.Log("Time is over!");
+        GameOverController goController = FindObjectOfType<GameOverController>();
+        if (goController != null)
+            goController.ShowGameOver();
+    }
+
+    public void StartTimer() {
+        timerRunning = true;
+    }
+
+    public void ResetTimer() {
+        timeNow = startTime;
+        timerRunning = false;
+        UpdateTimerUI();
     }
 }

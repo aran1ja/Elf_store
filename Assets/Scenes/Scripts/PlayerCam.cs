@@ -4,18 +4,19 @@ using UnityEngine;
 
 public class PlayerCam : MonoBehaviour
 {
-    public float sensX; 
-    public float sensY;
+    [Header("Mouse Sensitivity")]
+    public float sensX = 100f;
+    public float sensY = 100f;
 
     public Transform orientation;
 
-    float xRotation;
-    float yRotation;
+    private float xRotation;
+    private float yRotation;
     
     private void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        //Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.visible = false;
     }
 
     private void Update()
@@ -28,7 +29,6 @@ public class PlayerCam : MonoBehaviour
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        // Rotate cam and orientation
         transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
         orientation.rotation = Quaternion.Euler(0, yRotation, 0);
     }
