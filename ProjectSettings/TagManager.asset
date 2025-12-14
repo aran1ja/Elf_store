@@ -9,6 +9,7 @@ TagManager:
   - Clone
   - Table3big
   - Package
+  - TableSmall
   layers:
   - Default
   - TransparentFX

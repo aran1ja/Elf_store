@@ -12,6 +12,7 @@ public class PickupObjects : MonoBehaviour {
     public TMP_Text actionText;
 
     private GameObject currentTarget;
+    public GameObject heldObject;
 
     void Update() {
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
@@ -114,6 +115,26 @@ public class PickupObjects : MonoBehaviour {
             if (Camera.main != null)
                 rb.AddForce(Camera.main.transform.forward * throwForce, ForceMode.Impulse);
         }
+
+        actionText.text = "";
+    }
+
+    public void ForceDrop() {
+        if (holdPoint.childCount == 0) return;
+
+        Transform item = holdPoint.GetChild(0);
+        item.SetParent(null);
+
+        Rigidbody rb = item.GetComponent<Rigidbody>();
+        if (rb != null) {
+            rb.isKinematic = false;
+            rb.useGravity = true;
+            rb.velocity = Vector3.zero;
+        }
+
+        Collider col = item.GetComponent<Collider>();
+        if (col != null)
+            col.isTrigger = false;
 
         actionText.text = "";
     }
